@@ -7,27 +7,41 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 namespace OnTheRoad
 {
     public partial class MainForm : Form
     {
         public byte RoadState { get; set; }
-        public Color RoadColor { get; set; } = Color.Chocolate;
+        public Color RoadColor { get; set; } = Color.Gray;
         public Color LineColor { get; set; } = Color.White;
         public float ViewPosition { get; set; }
         public EventHandler Tick;
         public float Speed = 5;
-        public Image CarImage;
-        public readonly string RootDirecory;
+        public List<RoadObject> RoadObjects = new List<RoadObject>();
+        public List<Func<Item>> Spawners = new List<Func<Item>>();
+        public List<Item>[] CatchableItems = new List<Item>[4];
 
         public MainForm()
         {
             InitializeComponent();
-            RootDirecory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\OnTheRoad";
             this.UpdateTimer.Tick += UpdateGame;
             this.Tick += TickHandler;
-            CarImage = new Bitmap(RootDirecory + "\\Textures\\Car.png");
+            Pickup pickup = new Pickup();
+            pickup.PlacedBlocks[0] = new PlacedBox();
+            RoadObjects.Add(pickup);
+            for (int i = 0; i < 4; i++)
+            {
+                this.CatchableItems[i] = new List<Item>();
+            }
+            this.InitializeSpawners();
+        }
+
+        private void InitializeSpawners()
+        {
+
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -70,10 +84,21 @@ namespace OnTheRoad
 
         private void DrawCar(Graphics g)
         {
-            float newBitmapHeight = 192 / (float)CarImage.Width * CarImage.Height;
-            if (!(ViewPosition + 128 > this.ClientSize.Height) && (128 + newBitmapHeight > ViewPosition))
+            float pixelsUsed = -ToScreenSize(this.ViewPosition - 128);
+            float roadScreenSize = ToScreenSize(192);
+            float objectPreferredLeftEdge = ToScreenSize(544);
+            for (int i = 0; i < this.RoadObjects.Count; i++)
             {
-                g.DrawImage(CarImage, new RectangleF(ToScreenSize(544), ToScreenSize(128 - ViewPosition), ToScreenSize(192), ToScreenSize(newBitmapHeight)));
+                if (pixelsUsed >= this.ClientSize.Height)
+                {
+                    break;
+                }
+                float objectHeight = this.RoadObjects[i].GetHeight(roadScreenSize);
+                if (pixelsUsed + objectHeight >= 0)
+                {
+                    this.RoadObjects[i].Paint(g, new Point((int)objectPreferredLeftEdge, (int)pixelsUsed), roadScreenSize);
+                }
+                pixelsUsed += objectHeight;
             }
         }
 
