@@ -24,7 +24,7 @@ namespace OnTheRoad
         public override void Paint(Graphics g, Point preferredLocation, float prefferedWidth)
         {
             Bitmap bitmap = Resources.GetTexture(ResourceName, prefferedWidth);
-            g.DrawImage(bitmap, preferredLocation);
+            g.DrawImageBySize(bitmap, preferredLocation);
             float[,] placedBlocksRefLocations = new float[,] { { 0.15f, 1.4f }, { 0.5f, 1.4f }, { 0.15f, 1.8f }, { 0.5f, 1.8f } };
             for (int i = 0; i < 4; i++)
             {

@@ -11,7 +11,7 @@ namespace OnTheRoad
     {
         public override void Paint(Graphics g, PointF prefferedLocation, float prefferedSize)
         {
-            g.DrawImage(Resources.GetTexture("OnTheRoad\\Box.png", prefferedSize), prefferedLocation);
+            g.DrawImageBySize(Resources.GetTexture("OnTheRoad\\Box.png", prefferedSize), prefferedLocation);
         }
     }
 }

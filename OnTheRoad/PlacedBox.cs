@@ -31,13 +31,13 @@ namespace OnTheRoad
                     nextIndex++;
                 }
             }
-            //allItems[nextIndex] = new Box();
+            allItems[nextIndex] = new Box();
             return allItems;
         }
 
         public override void Paint(Graphics g, PlacedItemPaintLocation location)
         {
-            g.DrawImage(Resources.GetTexture("OnTheRoad\\Box.png", location.PreferredSize), location.Location);
+            g.DrawImageBySize(Resources.GetTexture("OnTheRoad\\Box.png", location.PreferredSize), location.Location);
         }
     }
 }

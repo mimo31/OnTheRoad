@@ -29,13 +29,21 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.UpdateTimer = new System.Windows.Forms.Timer(this.components);
+            this.TickTimer = new System.Windows.Forms.Timer(this.components);
+            this.RefreshTimer = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
-            // UpdateTimer
+            // TickTimer
             // 
-            this.UpdateTimer.Enabled = true;
-            this.UpdateTimer.Interval = 25;
+            this.TickTimer.Enabled = true;
+            this.TickTimer.Interval = 40;
+            this.TickTimer.Tick += new System.EventHandler(this.UpdateTimer_Tick);
+            // 
+            // RefreshTimer
+            // 
+            this.RefreshTimer.Enabled = true;
+            this.RefreshTimer.Interval = 25;
+            this.RefreshTimer.Tick += new System.EventHandler(this.RefreshTimer_Tick);
             // 
             // MainForm
             // 
@@ -46,6 +54,8 @@
             this.Text = "On The Road";
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.MainForm_Paint);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyDown);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyUp);
             this.Resize += new System.EventHandler(this.MainForm_Resize);
             this.ResumeLayout(false);
 
@@ -53,7 +63,8 @@
 
         #endregion
 
-        private System.Windows.Forms.Timer UpdateTimer;
+        private System.Windows.Forms.Timer TickTimer;
+        private System.Windows.Forms.Timer RefreshTimer;
     }
 }
 
