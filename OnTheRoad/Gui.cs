@@ -21,7 +21,7 @@ namespace OnTheRoad
             float maxHeight = this.MaxWindowsHeightPart * clientSize.Height;
             float finalWidth;
             float finalHeight;
-            if (WidthHeightRatio > maxWidth / clientSize.Height)
+            if (WidthHeightRatio > maxWidth / maxHeight)
             {
                 finalWidth = maxWidth;
                 finalHeight = finalWidth / this.WidthHeightRatio;

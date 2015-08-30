@@ -37,8 +37,8 @@ namespace OnTheRoad
             this.Width = width;
             this.Height = (int)Math.Ceiling(this.Items.Length / (float)this.Width);
             this.Name = name;
-            this.MaxWindowsHeightPart = (this.Width + 1) * 9 / (float)1024;
-            this.MaxWindowsWidthPart = this.Width / (float)64;
+            this.MaxWindowsHeightPart = (this.Width + 1) / (float)18;
+            this.MaxWindowsWidthPart = this.Width / (float)32;
             this.WidthHeightRatio = this.Width / (float)(this.Height + 1);
         }
 
