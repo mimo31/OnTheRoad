@@ -10,10 +10,16 @@ namespace OnTheRoad
     public class Pickup : RoadObject
     {
         const string ResourceName = "OnTheRoad\\Car.png";
+        public override PlacedItem[] PlacedItems { get; protected set; }
+        public override bool IsFirst { get { return true; } }
+        public override float Mass { get { return 100; } }
+        public override float Power { get { return 500; } }
+        private readonly PointF[] refPlacedLocations = new PointF[] { new PointF(0.15f, 1.4f), new PointF(0.5f, 1.4f ), new PointF(0.15f, 1.8f), new PointF(0.5f, 1.8f) };
+        protected override PointF[] RefPlacedLocations { get { return refPlacedLocations; } }
 
         public Pickup()
         {
-            base.PlacedBlocks = new PlacedItem[4];
+            this.PlacedItems = new PlacedItem[4];
         }
 
         public override Item[] DemontDrop()
@@ -21,27 +27,9 @@ namespace OnTheRoad
             return null;
         }
 
-        public override void Paint(Graphics g, Point preferredLocation, float prefferedWidth)
+        public override void PaintCar(Graphics g, Point preferredLocation, float prefferedWidth)
         {
-            Bitmap bitmap = Resources.GetTexture(ResourceName, prefferedWidth);
-            g.DrawImageBySize(bitmap, preferredLocation);
-            float[,] placedBlocksRefLocations = new float[,] { { 0.15f, 1.4f }, { 0.5f, 1.4f }, { 0.15f, 1.8f }, { 0.5f, 1.8f } };
-            for (int i = 0; i < 4; i++)
-            {
-                for (int j = 0; j < 2; j++)
-                {
-                    placedBlocksRefLocations[i, j] = (int)(placedBlocksRefLocations[i, j] * prefferedWidth);
-                }
-            }
-            for (int i = 0; i < 4; i++)
-            {
-                if (base.PlacedBlocks[i] != null)
-                {
-                    Point location = new Point(preferredLocation.X + (int)placedBlocksRefLocations[i, 0], preferredLocation.Y + (int)placedBlocksRefLocations[i, 1]);
-                    base.PlacedBlocks[i].Paint(g, new PlacedItemPaintLocation(location, prefferedWidth / 3));
-                }
-                
-            }
+            g.DrawImageBySize(Resources.GetTexture(ResourceName, prefferedWidth), preferredLocation);
         }
 
         public override float GetHeight(float width)

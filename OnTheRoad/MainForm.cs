@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
@@ -25,12 +24,13 @@ namespace OnTheRoad
         public bool MovingDown { get; set; }
         public float TotalCarHeight { get; set; }
         public Random R = new Random();
+        public Gui CurrentGui { get; set; }
 
         public MainForm()
         {
             InitializeComponent();
             Pickup pickup = new Pickup();
-            pickup.PlacedBlocks[0] = new PlacedBox();
+            pickup.PlacedItems[0] = new PlacedBox();
             RoadObjects.Add(pickup);
             TotalCarHeight = pickup.GetHeight(192);
             this.InitializeSpawners();
@@ -78,6 +78,11 @@ namespace OnTheRoad
             this.DrawRoad(e.Graphics);
             this.DrawCar(e.Graphics);
             this.DrawCatchableItems(e.Graphics);
+            if (this.CurrentGui != null)
+            {
+                e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(127, 0, 0, 0)), 0, 0, this.ClientSize.Width, this.ClientSize.Height);
+                this.CurrentGui.Draw(e.Graphics, this.ClientSize);
+            }
         }
 
         private void DrawRoad(Graphics g)
@@ -143,6 +148,11 @@ namespace OnTheRoad
                     catchableItem.Item.Paint(g, location, ToScreenSize(64));
                 }
             }
+        }
+
+        public void DrawContainerGui(Graphics g, Item[,] items, string headline)
+        {
+
         }
 
         private void MainForm_Resize(object sender, EventArgs e)
@@ -236,6 +246,25 @@ namespace OnTheRoad
         private void RefreshTimer_Tick(object sender, EventArgs e)
         {
             this.Refresh();
+        }
+
+        private void MainForm_MouseClick(object sender, MouseEventArgs e)
+        {
+            float objectPreferredLeftEdge = ToScreenSize(544);
+            if (e.X >= objectPreferredLeftEdge && e.X < this.ToScreenSize(736))
+            {
+                float gameSizeYLocation = this.ViewPosition + ToGameSize(e.Y);
+                float pixelsReached = 128;
+                for (int i = 0; i < this.RoadObjects.Count; i++)
+                {
+                    pixelsReached += this.RoadObjects[i].GetHeight(192);
+                    if (pixelsReached > gameSizeYLocation)
+                    {
+                        this.RoadObjects[i].Click(this, e, new Point((int)objectPreferredLeftEdge, (int)this.ToScreenSize(pixelsReached - this.RoadObjects[i].GetHeight(192) - this.ViewPosition)), this.ToScreenSize(192));
+                        break;
+                    }
+                }
+            }
         }
     }
 }

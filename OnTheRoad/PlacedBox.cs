@@ -7,9 +7,11 @@ using System.Threading.Tasks;
 
 namespace OnTheRoad
 {
-    public class PlacedBox : PlacedItem
+    public class PlacedBox : PlainStorage
     {
-        private Item[] Items = new Item[16];
+        public override Item[] Items { get; set; } = new Item[16];
+        public override string InGUIName { get { return "Box"; } }
+        public override int GridWidth { get { return 4; } }
 
         public override Item[] DemontDrop()
         {
