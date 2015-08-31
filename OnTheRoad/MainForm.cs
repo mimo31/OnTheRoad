@@ -283,24 +283,43 @@ namespace OnTheRoad
 
         private void MainForm_MouseClick(object sender, MouseEventArgs e)
         {
-            if (this.CurrentGui != null)
+            float slotSize = StorageGui.GetSlotSize(this.ClientSize);
+            float inventoryUpSide = this.ClientSize.Height / 2 - slotSize * 4;
+            if (new Rectangle(0, (int)(inventoryUpSide - slotSize / 8), (int)(slotSize + slotSize / 8), (int)(slotSize * 8 + slotSize / 4)).Contains(e.Location))
             {
-                this.CurrentGui.Click(this, e);
+                if (e.X >= slotSize / 8 && e.X < slotSize - slotSize / 8 && e.Y >= inventoryUpSide && e.Y < this.ClientSize.Height + slotSize * 4)
+                {
+                    float inSlotLocationY = (e.Y - inventoryUpSide) % slotSize;
+                    if (inSlotLocationY >= slotSize / 8 && inSlotLocationY < slotSize - slotSize / 8)
+                    {
+                        int slotIndex = (int)Math.Floor((e.Y - inventoryUpSide) / slotSize);
+                        Item oldHeldItem = this.HeldItem;
+                        this.HeldItem = this.Inventory[slotIndex];
+                        this.Inventory[slotIndex] = oldHeldItem;
+                    }
+                }
             }
             else
             {
-                float objectPreferredLeftEdge = ToScreenSize(544);
-                if (e.X >= objectPreferredLeftEdge && e.X < this.ToScreenSize(736))
+                if (this.CurrentGui != null)
                 {
-                    float gameSizeYLocation = this.ViewPosition + ToGameSize(e.Y);
-                    float pixelsReached = 128;
-                    for (int i = 0; i < this.RoadObjects.Count; i++)
+                    this.CurrentGui.Click(this, e);
+                }
+                else
+                {
+                    float objectPreferredLeftEdge = ToScreenSize(544);
+                    if (e.X >= objectPreferredLeftEdge && e.X < this.ToScreenSize(736))
                     {
-                        pixelsReached += this.RoadObjects[i].GetHeight(192);
-                        if (pixelsReached > gameSizeYLocation)
+                        float gameSizeYLocation = this.ViewPosition + ToGameSize(e.Y);
+                        float pixelsReached = 128;
+                        for (int i = 0; i < this.RoadObjects.Count; i++)
                         {
-                            this.RoadObjects[i].Click(this, e, new Point((int)objectPreferredLeftEdge, (int)this.ToScreenSize(pixelsReached - this.RoadObjects[i].GetHeight(192) - this.ViewPosition)), this.ToScreenSize(192));
-                            break;
+                            pixelsReached += this.RoadObjects[i].GetHeight(192);
+                            if (pixelsReached > gameSizeYLocation)
+                            {
+                                this.RoadObjects[i].Click(this, e, new Point((int)objectPreferredLeftEdge, (int)this.ToScreenSize(pixelsReached - this.RoadObjects[i].GetHeight(192) - this.ViewPosition)), this.ToScreenSize(192));
+                                break;
+                            }
                         }
                     }
                 }
