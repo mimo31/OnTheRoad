@@ -76,8 +76,15 @@ namespace OnTheRoad
 
         public static Bitmap GetTexture(string name, float width)
         {
-            Bitmap original = GetTexture(name);
-            return GetTexture(name, new Size((int)width, (int)(original.Height / (float)original.Width * width)));
+            if (width >= 1)
+            {
+                Bitmap original = GetTexture(name);
+                return GetTexture(name, new Size((int)width, (int)(original.Height / (float)original.Width * width)));
+            }
+            else
+            {
+                return new Bitmap(1, 1);
+            }
         }
     }
 

@@ -25,15 +25,22 @@ namespace OnTheRoad
         public float TotalCarHeight { get; set; }
         public Random R = new Random();
         public Gui CurrentGui { get; set; }
+        public Item[] Inventory { get; set; }
+        public Item HeldItem { get; set; }
+        public Point CursorLocation { get; set; }
 
         public MainForm()
         {
             InitializeComponent();
             Pickup pickup = new Pickup();
-            pickup.PlacedItems[0] = new PlacedBox();
+            PlacedBox box = new PlacedBox();
+            box.Items[6] = new Cardboard();
+            pickup.PlacedItems[0] = box;
             RoadObjects.Add(pickup);
             TotalCarHeight = pickup.GetHeight(192);
             this.InitializeSpawners();
+            this.Inventory = new Item[8];
+            this.CursorLocation = new Point(0, 0);
         }
 
         private void InitializeSpawners()
@@ -83,6 +90,8 @@ namespace OnTheRoad
                 e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(127, 0, 0, 0)), 0, 0, this.ClientSize.Width, this.ClientSize.Height);
                 this.CurrentGui.Draw(e.Graphics, this.ClientSize);
             }
+            this.DrawInventory(e.Graphics);
+            this.DrawHeldItem(e.Graphics);
         }
 
         private void DrawRoad(Graphics g)
@@ -103,6 +112,15 @@ namespace OnTheRoad
             {
                 g.FillRectangle(new SolidBrush(LineColor), lineX, drawnPixels, lineWidth, lineHeight);
                 drawnPixels += lineHeight * 2;
+            }
+        }
+
+        private void DrawHeldItem(Graphics g)
+        {
+            if (this.HeldItem != null)
+            {
+                float slotSize = StorageGui.GetSlotSize(this.ClientSize);
+                this.HeldItem.Paint(g, new PointF(this.CursorLocation.X - (slotSize - slotSize / 4) / 2, this.CursorLocation.Y - (slotSize - slotSize / 4) / 2), slotSize - slotSize / 4);
             }
         }
 
@@ -150,9 +168,20 @@ namespace OnTheRoad
             }
         }
 
-        public void DrawContainerGui(Graphics g, Item[,] items, string headline)
+        private void DrawInventory(Graphics g)
         {
-
+            float slotSize = StorageGui.GetSlotSize(this.ClientSize);
+            float upSide = this.ClientSize.Height / (float)2 - slotSize * 4;
+            g.FillRectangle(Brushes.Khaki, 0, upSide - slotSize / 8, slotSize + slotSize / 8, slotSize * 8 + slotSize / 4);
+            g.FillRectangle(Brushes.White, 0, upSide, slotSize, slotSize * 8);
+            for (int i = 0; i < 8; i++)
+            {
+                g.FillRectangle(Brushes.Green, slotSize / 16, upSide + i * slotSize + slotSize / 16, slotSize - slotSize / 8, slotSize - slotSize / 8);
+                if (this.Inventory[i] != null)
+                {
+                    this.Inventory[i].Paint(g, new PointF(slotSize / 8, upSide + i * slotSize + slotSize / 8), slotSize - slotSize / 4);
+                }
+            }
         }
 
         private void MainForm_Resize(object sender, EventArgs e)
@@ -169,6 +198,10 @@ namespace OnTheRoad
             else if (e.KeyCode == Keys.Down)
             {
                 this.MovingDown = true;
+            }
+            else if (e.KeyCode == Keys.Escape)
+            {
+                this.CurrentGui = null;
             }
         }
 
@@ -250,21 +283,33 @@ namespace OnTheRoad
 
         private void MainForm_MouseClick(object sender, MouseEventArgs e)
         {
-            float objectPreferredLeftEdge = ToScreenSize(544);
-            if (e.X >= objectPreferredLeftEdge && e.X < this.ToScreenSize(736))
+            if (this.CurrentGui != null)
             {
-                float gameSizeYLocation = this.ViewPosition + ToGameSize(e.Y);
-                float pixelsReached = 128;
-                for (int i = 0; i < this.RoadObjects.Count; i++)
+                this.CurrentGui.Click(this, e);
+            }
+            else
+            {
+                float objectPreferredLeftEdge = ToScreenSize(544);
+                if (e.X >= objectPreferredLeftEdge && e.X < this.ToScreenSize(736))
                 {
-                    pixelsReached += this.RoadObjects[i].GetHeight(192);
-                    if (pixelsReached > gameSizeYLocation)
+                    float gameSizeYLocation = this.ViewPosition + ToGameSize(e.Y);
+                    float pixelsReached = 128;
+                    for (int i = 0; i < this.RoadObjects.Count; i++)
                     {
-                        this.RoadObjects[i].Click(this, e, new Point((int)objectPreferredLeftEdge, (int)this.ToScreenSize(pixelsReached - this.RoadObjects[i].GetHeight(192) - this.ViewPosition)), this.ToScreenSize(192));
-                        break;
+                        pixelsReached += this.RoadObjects[i].GetHeight(192);
+                        if (pixelsReached > gameSizeYLocation)
+                        {
+                            this.RoadObjects[i].Click(this, e, new Point((int)objectPreferredLeftEdge, (int)this.ToScreenSize(pixelsReached - this.RoadObjects[i].GetHeight(192) - this.ViewPosition)), this.ToScreenSize(192));
+                            break;
+                        }
                     }
                 }
             }
+        }
+
+        private void MainForm_MouseMove(object sender, MouseEventArgs e)
+        {
+            this.CursorLocation = e.Location;
         }
     }
 }
