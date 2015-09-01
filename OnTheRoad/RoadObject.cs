@@ -56,7 +56,7 @@ namespace OnTheRoad
 
         public abstract Item[] DemontDrop();
 
-        public void Click(object sender, MouseEventArgs e, Point prefferedLocation, float prefferedWidth)
+        public void Click(MainForm sender, MouseEventArgs e, Point prefferedLocation, float prefferedWidth)
         {
             PointF clickRefLocation = new PointF((e.X - prefferedLocation.X) / prefferedWidth, (e.Y - prefferedLocation.Y) / prefferedWidth);
             RefClickEventArgs newEventArgs = new RefClickEventArgs(e.Button, clickRefLocation.X, clickRefLocation.Y);
@@ -71,15 +71,23 @@ namespace OnTheRoad
             }
             for (int i = 0; i < placedItemsRects.Length; i++)
             {
-                if (this.PlacedItems[i] != null)
+                if (placedItemsRects[i].Contains(clickRefLocation))
                 {
-                    if (placedItemsRects[i].Contains(clickRefLocation))
+                    if (this.PlacedItems[i] != null)
                     {
                         RefClickEventArgs placedItemClickEventArgs = new RefClickEventArgs(e.Button, (clickRefLocation.X - this.RefPlacedLocations[i].X) / 3, (clickRefLocation.Y - this.RefPlacedLocations[i].Y) / 3);
                         this.PlacedItems[i].Click(placedItemClickEventArgs);
                         if (e.Button == MouseButtons.Right && this.PlacedItems[i] is IGui)
                         {
-                            (sender as MainForm).CurrentGui = (this.PlacedItems[i] as IGui).Gui;
+                            sender.CurrentGui = (this.PlacedItems[i] as IGui).Gui;
+                        }
+                    }
+                    else
+                    {
+                        if (sender.HeldItem is IPlacable)
+                        {
+                            this.PlacedItems[i] = (sender.HeldItem as IPlacable).NewPlacedItem;
+                            sender.HeldItem = null;
                         }
                     }
                 }

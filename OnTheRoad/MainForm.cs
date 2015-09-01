@@ -40,6 +40,7 @@ namespace OnTheRoad
             TotalCarHeight = pickup.GetHeight(192);
             this.InitializeSpawners();
             this.Inventory = new Item[8];
+            this.Inventory[3] = new Box();
             this.CursorLocation = new Point(0, 0);
         }
 
