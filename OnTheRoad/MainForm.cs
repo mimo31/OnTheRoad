@@ -285,12 +285,12 @@ namespace OnTheRoad
         {
             float slotSize = StorageGui.GetSlotSize(this.ClientSize);
             float inventoryUpSide = this.ClientSize.Height / 2 - slotSize * 4;
-            if (new Rectangle(0, (int)(inventoryUpSide - slotSize / 8), (int)(slotSize + slotSize / 8), (int)(slotSize * 8 + slotSize / 4)).Contains(e.Location))
+            if (new Rectangle(0, (int)(inventoryUpSide - slotSize / 16), (int)(slotSize + slotSize / 16), (int)(slotSize * 8 + slotSize / 8)).Contains(e.Location))
             {
-                if (e.X >= slotSize / 8 && e.X < slotSize - slotSize / 8 && e.Y >= inventoryUpSide && e.Y < this.ClientSize.Height + slotSize * 4)
+                if (e.X >= slotSize / 16 && e.X < slotSize - slotSize / 16 && e.Y >= inventoryUpSide && e.Y < this.ClientSize.Height + slotSize * 4)
                 {
                     float inSlotLocationY = (e.Y - inventoryUpSide) % slotSize;
-                    if (inSlotLocationY >= slotSize / 8 && inSlotLocationY < slotSize - slotSize / 8)
+                    if (inSlotLocationY >= slotSize / 16 && inSlotLocationY < slotSize - slotSize / 16)
                     {
                         int slotIndex = (int)Math.Floor((e.Y - inventoryUpSide) / slotSize);
                         Item oldHeldItem = this.HeldItem;
@@ -320,6 +320,37 @@ namespace OnTheRoad
                                 this.RoadObjects[i].Click(this, e, new Point((int)objectPreferredLeftEdge, (int)this.ToScreenSize(pixelsReached - this.RoadObjects[i].GetHeight(192) - this.ViewPosition)), this.ToScreenSize(192));
                                 break;
                             }
+                        }
+                    }
+                    else if (e.X >= this.ClientSize.Width * 3 / (float)4)
+                    {
+                        int catchableItemX = (int)Math.Floor((e.X - this.ClientSize.Width * 3 / (float)4) / (this.ClientSize.Width / (float)16));
+                        int catchableItemY = (int)Math.Floor((this.ViewPosition + this.ToGameSize(e.Y) + 64 - this.CatchableItemsState) / 64);
+                        bool found = false;
+                        for (int i = 0; i < this.CatchableItems.Count; i++)
+                        {
+                            if (this.CatchableItems[i].PositionX == catchableItemX && this.CatchableItems[i].PositionY == catchableItemY)
+                            {
+                                Item oldHeldItem = this.HeldItem;
+                                this.HeldItem = this.CatchableItems[i].Item;
+                                if (oldHeldItem != null)
+                                {
+                                    CatchableItem newCatchableItem = new CatchableItem(oldHeldItem, (byte)catchableItemX, catchableItemY);
+                                    this.CatchableItems[i] = newCatchableItem;
+                                }
+                                else
+                                {
+                                    this.CatchableItems.RemoveAt(i);
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!found && this.HeldItem != null)
+                        {
+                            CatchableItem newCatchableItem = new CatchableItem(this.HeldItem, (byte)catchableItemX, catchableItemY);
+                            this.CatchableItems.Add(newCatchableItem);
+                            this.HeldItem = null;
                         }
                     }
                 }

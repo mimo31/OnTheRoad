@@ -65,7 +65,6 @@ namespace OnTheRoad
                     }
                 }
             }
-            
         }
 
         protected override void DrawInside(Graphics g, Point startPoint, float width)
